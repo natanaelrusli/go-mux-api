@@ -8,6 +8,7 @@ import (
 
 type ProductRepository interface {
 	GetProducts(start, count int) ([]model.Product, error)
+	AddProduct(product model.Product) (model.Product, error)
 }
 
 type productRepository struct {
@@ -47,4 +48,22 @@ func (r *productRepository) GetProducts(start, count int) ([]model.Product, erro
 	}
 
 	return products, nil
+}
+
+func (r *productRepository) AddProduct(product model.Product) (model.Product, error) {
+	var p model.Product
+	row := r.db.QueryRow(
+		`INSERT INTO products (name, price) VALUES($1, $2) 
+		RETURNING id, name, price`,
+		product.Name,
+		product.Price,
+	)
+
+	row.Scan(&p.ID, &p.Name, &p.Price)
+
+	if row.Err() != nil {
+		return model.Product{}, row.Err()
+	}
+
+	return p, nil
 }

@@ -6,8 +6,8 @@ import (
 )
 
 type JSONResponse struct {
-	Data    interface{}
-	Message string
+	Data    interface{} `json:"data"`
+	Message string      `json:"message"`
 }
 
 func ResponseSuccess(w http.ResponseWriter, payload interface{}) {
@@ -26,5 +26,6 @@ func RespondWithJSON(w http.ResponseWriter, data interface{}, msg string, code i
 
 	response, _ := json.Marshal(jsonData)
 
+	w.Header().Set("Content-Type", "application/json")
 	w.Write(response)
 }
