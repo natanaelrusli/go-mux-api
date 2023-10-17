@@ -7,6 +7,7 @@ import (
 	"github.com/natanaelrusli/go-mux-api/internal/model"
 	"github.com/natanaelrusli/go-mux-api/internal/usecase"
 	"github.com/natanaelrusli/go-mux-api/internal/utils"
+	cerrors "github.com/natanaelrusli/go-mux-api/internal/utils/errors"
 )
 
 type ProductHandler struct {
@@ -42,7 +43,7 @@ func (h *ProductHandler) CreateOneProduct(w http.ResponseWriter, r *http.Request
 	res, err := h.productUsecase.CreateOne(p)
 
 	if err != nil {
-		utils.RespondWithJSON(w, nil, err.Error(), http.StatusInternalServerError)
+		utils.RespondWithJSON(w, nil, cerrors.NewBadFormattedRequest().Message, http.StatusInternalServerError)
 		return
 	}
 

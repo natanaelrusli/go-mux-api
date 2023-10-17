@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/natanaelrusli/go-mux-api/internal/model"
 )
@@ -52,6 +53,7 @@ func (r *productRepository) GetProducts(start, count int) ([]model.Product, erro
 
 func (r *productRepository) AddProduct(product model.Product) (model.Product, error) {
 	var p model.Product
+
 	row := r.db.QueryRow(
 		`INSERT INTO products (name, price) VALUES($1, $2) 
 		RETURNING id, name, price`,
@@ -59,11 +61,14 @@ func (r *productRepository) AddProduct(product model.Product) (model.Product, er
 		product.Price,
 	)
 
-	row.Scan(&p.ID, &p.Name, &p.Price)
-
 	if row.Err() != nil {
-		return model.Product{}, row.Err()
+		switch row.Err() {
+		default:
+			return model.Product{}, errors.New("internal server error")
+		}
 	}
+
+	row.Scan(&p.ID, &p.Name, &p.Price)
 
 	return p, nil
 }

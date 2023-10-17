@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"github.com/natanaelrusli/go-mux-api/internal/model"
 	"github.com/natanaelrusli/go-mux-api/internal/repository"
 )
@@ -32,6 +34,12 @@ func (u *productUsecase) GetList() ([]model.Product, error) {
 
 func (u *productUsecase) CreateOne(product model.Product) (model.Product, error) {
 	res, err := u.productRepository.AddProduct(product)
+
+	if product.Name == "" {
+		return model.Product{}, errors.New("name field is required")
+	} else if product.Price == 0 {
+		return model.Product{}, errors.New("price is required and have to be greater than 0")
+	}
 
 	if err != nil {
 		return model.Product{}, err
