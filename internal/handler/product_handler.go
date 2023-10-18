@@ -36,6 +36,7 @@ func (h *ProductHandler) CreateOneProduct(w http.ResponseWriter, r *http.Request
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&p); err != nil {
+		utils.RespondWithJSON(w, nil, cerrors.NewBadFormattedRequest().Message, http.StatusInternalServerError)
 		return
 	}
 	defer r.Body.Close()

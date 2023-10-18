@@ -37,7 +37,9 @@ func (u *productUsecase) CreateOne(product model.Product) (model.Product, error)
 
 	if product.Name == "" {
 		return model.Product{}, errors.New("name field is required")
-	} else if product.Price == 0 {
+	}
+
+	if product.Price == 0 {
 		return model.Product{}, errors.New("price is required and have to be greater than 0")
 	}
 

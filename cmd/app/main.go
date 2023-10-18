@@ -20,8 +20,8 @@ func main() {
 	productUsecase := usecase.NewProductUsecase(productRepository)
 	productHandler := handler.NewProductHandler(productUsecase)
 
-	r.HandleFunc("/products", productHandler.GetProductList).Methods("GET")
 	r.HandleFunc("/product", productHandler.CreateOneProduct).Methods("POST")
+	r.HandleFunc("/products", productHandler.GetProductList).Methods("GET")
 
 	srv := &http.Server{
 		Addr:    ":8020",
