@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/natanaelrusli/go-mux-api/internal/model"
+	"github.com/natanaelrusli/go-mux-api/internal/dto/request"
+	"github.com/natanaelrusli/go-mux-api/internal/dto/response"
 	"github.com/natanaelrusli/go-mux-api/internal/usecase"
 	"github.com/natanaelrusli/go-mux-api/internal/utils"
 	cerrors "github.com/natanaelrusli/go-mux-api/internal/utils/errors"
@@ -21,18 +22,30 @@ func NewProductHandler(productUsecase usecase.ProductUsecase) *ProductHandler {
 }
 
 func (h *ProductHandler) GetProductList(w http.ResponseWriter, r *http.Request) {
-	res, err := h.productUsecase.GetList()
+	p := new(response.ProductResult)
+	req := new(request.ProductsRequestBody)
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&req); err != nil {
+		utils.RespondWithJSON(w, nil, cerrors.NewBadFormattedRequest().Message, http.StatusInternalServerError)
+		return
+	}
+
+	res, err := h.productUsecase.GetList(req.Page, req.Limit)
 
 	if err != nil {
 		utils.RespondWithJSON(w, nil, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.RespondWithJSON(w, res, "success", http.StatusOK)
+	p.Products = res.Products
+	p.Pagination = res.Pagination
+
+	utils.RespondWithJSON(w, p, "success", http.StatusOK)
 }
 
 func (h *ProductHandler) CreateOneProduct(w http.ResponseWriter, r *http.Request) {
-	var p model.Product
+	p := new(request.ProductRequestBody)
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&p); err != nil {
@@ -41,7 +54,7 @@ func (h *ProductHandler) CreateOneProduct(w http.ResponseWriter, r *http.Request
 	}
 	defer r.Body.Close()
 
-	res, err := h.productUsecase.CreateOne(p)
+	res, err := h.productUsecase.CreateOne(*p)
 
 	if err != nil {
 		utils.RespondWithJSON(w, nil, cerrors.NewBadFormattedRequest().Message, http.StatusInternalServerError)

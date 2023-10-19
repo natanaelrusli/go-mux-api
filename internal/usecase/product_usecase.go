@@ -3,13 +3,15 @@ package usecase
 import (
 	"errors"
 
+	"github.com/natanaelrusli/go-mux-api/internal/dto/request"
+	"github.com/natanaelrusli/go-mux-api/internal/dto/response"
 	"github.com/natanaelrusli/go-mux-api/internal/model"
 	"github.com/natanaelrusli/go-mux-api/internal/repository"
 )
 
 type ProductUsecase interface {
-	GetList() ([]model.Product, error)
-	CreateOne(product model.Product) (model.Product, error)
+	GetList(page, limit int) (response.ProductResult, error)
+	CreateOne(product request.ProductRequestBody) (model.Product, error)
 }
 
 type productUsecase struct {
@@ -22,18 +24,20 @@ func NewProductUsecase(productRepository repository.ProductRepository) ProductUs
 	}
 }
 
-func (u *productUsecase) GetList() ([]model.Product, error) {
-	res, err := u.productRepository.GetProducts(1, 5)
+func (u *productUsecase) GetList(page, limit int) (response.ProductResult, error) {
+	var res response.ProductResult
+
+	res, err := u.productRepository.GetProducts(page, limit)
 
 	if err != nil {
-		return nil, err
+		return res, err
 	}
 
 	return res, nil
 }
 
-func (u *productUsecase) CreateOne(product model.Product) (model.Product, error) {
-	res, err := u.productRepository.AddProduct(product)
+func (u *productUsecase) CreateOne(data request.ProductRequestBody) (model.Product, error) {
+	product, err := u.productRepository.AddProduct(data)
 
 	if product.Name == "" {
 		return model.Product{}, errors.New("name field is required")
@@ -47,5 +51,5 @@ func (u *productUsecase) CreateOne(product model.Product) (model.Product, error)
 		return model.Product{}, err
 	}
 
-	return res, nil
+	return product, nil
 }

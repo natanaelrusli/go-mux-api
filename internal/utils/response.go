@@ -5,7 +5,16 @@ import (
 	"net/http"
 )
 
+type Pagination struct {
+	Next          int `json:"next"`
+	Previous      int `json:"prev"`
+	RecordPerPage int `json:"perPage"`
+	CurrentPage   int `json:"current"`
+	TotalPage     int `json:"totalPage"`
+}
+
 type JSONResponse struct {
+	Success bool        `json:"success"`
 	Data    interface{} `json:"data"`
 	Message string      `json:"message"`
 }
@@ -20,6 +29,7 @@ func ResponseSuccess(w http.ResponseWriter, payload interface{}) {
 
 func RespondWithJSON(w http.ResponseWriter, data interface{}, msg string, code int) {
 	jsonData := JSONResponse{
+		Success: true,
 		Data:    data,
 		Message: msg,
 	}
